@@ -1,0 +1,49 @@
+$ sqlite3 db.sqlite3
+
+SQLite version 3.45.3 2024-04-15 13:34:05
+Enter ".help" for usage hints.
+
+sqlite> .tables
+
+auth_group                  django_content_type       
+auth_group_permissions      django_migrations         
+auth_permission             django_session            
+auth_user                   tasks_category            
+auth_user_groups            tasks_contextentry        
+auth_user_user_permissions  tasks_task                
+django_admin_log          
+
+sqlite> .schema tasks_category
+
+CREATE TABLE IF NOT EXISTS "tasks_category" (
+    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" varchar(50) NOT NULL,
+    "frequency" integer NOT NULL
+);
+
+sqlite> .schema tasks_contextentry
+
+CREATE TABLE IF NOT EXISTS "tasks_contextentry" (
+    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "content" text NOT NULL,
+    "src_type" varchar(20) NOT NULL,
+    "timestamp" datetime NOT NULL,
+    "processed_insights" text NULL CHECK ((JSON_VALID("processed_insights") OR "processed_insights" IS NULL))
+);
+
+sqlite> .schema tasks_task
+
+CREATE TABLE IF NOT EXISTS "tasks_task" (
+    "id" integer NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "title" varchar(100) NOT NULL, 
+    "description" text NULL, 
+    "priority" real NOT NULL, 
+    "deadline" datetime NULL, 
+    "status" varchar(20) NOT NULL, 
+    "created_at" datetime NOT NULL, 
+    "updated_at" datetime NOT NULL, 
+    "category_id" bigint NULL REFERENCES "tasks_category" ("id") DEFERRABLE INITIALLY DEFERRED
+);
+CREATE INDEX "tasks_task_category_id_ec02979a" ON "tasks_task" ("category_id");
+
+sqlite> .exit
